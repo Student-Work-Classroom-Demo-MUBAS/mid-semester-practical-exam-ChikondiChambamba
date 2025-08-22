@@ -106,7 +106,7 @@ app.post('/enroll', (req, res) => {
     return res.status(400).send(page('Error', '<p class="muted">All fields except reason are required.</p><p><a href="/">Back</a></p>'));
   }
   // Validate studentId format
-   if (!studentIdOk(studentId)) {
+   if (!studentIdOk(studentId && studentId.trim())) {
     return res.status(400).send(page('Error', '<p class="muted">Student ID must be in YYYY-NNNN format.</p><p><a href="/">Back</a></p>'));
   }
 
@@ -155,15 +155,14 @@ app.post('/unenroll/:id', (req, res) => {
   const index = enrollments.findIndex(e => e.id === id);
   if (index !== -1) {
     enrollments.splice(index, 1);
-    
-    // 3) Redirect back to /enrollments
+
+    // Redirect back to /enrollments
     return res.redirect('/enrollments');
   }
 
   // If not found, show error
   return res.status(404).send(page('Error', '<p class="muted">Enrollment not found.</p><p><a href="/enrollments">Back</a></p>'));
 
-  return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /unenroll/:id</p><p><a href="/enrollments">Back</a></p>'));
 });
 
 // Static last so dynamic routes above take priority
