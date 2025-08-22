@@ -155,6 +155,7 @@ app.post('/unenroll/:id', (req, res) => {
   const index = enrollments.findIndex(e => e.id === id);
   if (index !== -1) {
     enrollments.splice(index, 1);
+    
     // 3) Redirect back to /enrollments
     return res.redirect('/enrollments');
   }
