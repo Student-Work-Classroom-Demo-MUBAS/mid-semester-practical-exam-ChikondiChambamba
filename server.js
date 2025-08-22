@@ -142,7 +142,7 @@ app.post('/enroll', (req, res) => {
 
   // Redirect to enrollments page
   res.redirect('/enrollments');
-  return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /enroll using req.body</p><p><a href="/">Back</a></p>'));
+  return res.status(501).send(page('Not Implemented', '<p class="muted"> Enrollment not found'));
 });
 
 // Unenroll (form POST)
