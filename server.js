@@ -111,7 +111,7 @@ app.post('/enroll', (req, res) => {
   }
 
   // 3) Create enrollment object; push; increment id
-  const course = courseByCode(courseCode);
+  const course = courseByCode(courseCode && courseCode.trim());
   if (!course) {
     return res.status(400).send(page('Error', '<p class="muted">Selected course does not exist.</p><p><a href="/">Back</a></p>'));
   }
