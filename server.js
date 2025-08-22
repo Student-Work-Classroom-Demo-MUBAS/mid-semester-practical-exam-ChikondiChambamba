@@ -95,12 +95,38 @@ app.get('/courses', (req, res) => {
 
 // Handle enrollment via standard form POST (uses req.body only)
 app.post('/enroll', (req, res) => {
+ 
   // TODO:
   // 1) Read fields from req.body: studentName, studentId, courseCode, semester, reason(optional)
-  // 2) Validate: required fields; studentId matches YYYY-NNNN; course exists
-  // 3) Create enrollment object; push; increment id
-  // 4) Redirect to /enrollments on success; otherwise show error page with Back link
+      const { studentName, studentId, courseCode, semester, reason } = req.body;
 
+  // 2) Validate: required fields; studentId matches YYYY-NNNN; course exists
+
+  if (!studentName || !studentId || !courseCode || !semester) {
+    return res.status(400).send(page('Error', '<p class="muted">All fields except reason are required.</p><p><a href="/">Back</a></p>'));
+  }
+  // Validate studentId format
+   if (!studentIdOk(studentId)) {
+    return res.status(400).send(page('Error', '<p class="muted">Student ID must be in YYYY-NNNN format.</p><p><a href="/">Back</a></p>'));
+  }
+
+  // 3) Create enrollment object; push; increment id
+  const course = courseByCode(courseCode);
+  if (!course) {
+    return res.status(400).send(page('Error', '<p class="muted">Selected course does not exist.</p><p><a href="/">Back</a></p>'));
+  }
+
+  // 4) Redirect to /enrollments on success; otherwise show error page with Back link
+  const newEnroll = {
+    id: enrollmentIdCounter++,
+    studentName,
+    studentId,
+    courseCode,
+    courseName: course.name,
+    semester,
+    reason,
+    enrollmentDate: Date.now()
+  };
   /* Example shape to build (DO NOT UNCOMMENT — for reference only)
   const course = courseByCode(courseCode);
   const newEnroll = {
@@ -111,6 +137,11 @@ app.post('/enroll', (req, res) => {
   enrollments.push(newEnroll);
   res.redirect('/enrollments');
   */
+
+  enrollments.push(newEnroll);
+
+  // Redirect to enrollments page
+  res.redirect('/enrollments');
   return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /enroll using req.body</p><p><a href="/">Back</a></p>'));
 });
 
@@ -118,8 +149,18 @@ app.post('/enroll', (req, res) => {
 app.post('/unenroll/:id', (req, res) => {
   // TODO:
   // 1) Parse id from req.params
+  const id = Number(req.params.id);
+
   // 2) Remove matching enrollment from array if found
-  // 3) Redirect back to /enrollments (or show error)
+  const index = enrollments.findIndex(e => e.id === id);
+  if (index !== -1) {
+    enrollments.splice(index, 1);
+    // 3) Redirect back to /enrollments
+    return res.redirect('/enrollments');
+  }
+
+  // If not found, show error
+  return res.status(404).send(page('Error', '<p class="muted">Enrollment not found.</p><p><a href="/enrollments">Back</a></p>'));
 
   return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /unenroll/:id</p><p><a href="/enrollments">Back</a></p>'));
 });
